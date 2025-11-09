@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page</title>
+    <link href="/style.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+  <p>#include WiFi.h
+#include "esp_wifi.h"
+
+#define CHANNEL 1  // Wi-Fi channel to sniff on (1-13 depending on region)
+
+// Callback function for received packets
+void snifferCallback(void* buf, wifi_promiscuous_pkt_type_t type) {
+  const wifi_promiscuous_pkt_t *pkt = (wifi_promiscuous_pkt_t*)buf;
+
+  // RSSI (signal strength)
+  int rssi = pkt->rx_ctrl.rssi;
+
+  // Get source MAC address
+  const uint8_t *mac = pkt->payload;
+  
+  Serial.printf("RSSI: %d dBm, MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                rssi,
+                mac[10], mac[11], mac[12], mac[13], mac[14], mac[15]);
+}
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_MODE_NULL); // disable Wi-Fi client/host
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_promiscuous_filter(nullptr);
+  esp_wifi_set_promiscuous_rx_cb(&snifferCallback);
+  esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE);
+  Serial.println("Sniffer started...");
+}
+
+void loop() {
+  // Nothing needed here, callback runs on packet reception
+}</p>
+  
+  </body>
+</html>
